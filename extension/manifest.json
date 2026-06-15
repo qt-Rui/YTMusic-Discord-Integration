@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "YTMusic Discord RPC Bridge",
+  "version": "1.0.0",
+  "description": "Sends YouTube Music now-playing metadata to the local YTMusic Discord RPC desktop app. Loopback only, no data leaves your machine.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "*://music.youtube.com/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://music.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}

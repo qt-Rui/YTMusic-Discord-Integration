@@ -1,0 +1,54 @@
+appId: com.ytmusicrpc.app
+productName: YTMusic Discord RPC
+copyright: Copyright © 2026 YTMusic RPC Contributors
+
+directories:
+  output: release
+  buildResources: resources
+
+# Only ship the compiled output + the unbundled runtime deps.
+files:
+  - out/**/*
+  - package.json
+  - "!**/*.map"
+
+# The browser extension is shipped alongside the app so users can load it.
+extraResources:
+  - from: extension
+    to: extension
+    filter:
+      - "**/*"
+
+# ---------- Windows ----------
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: resources/icon.png
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+
+# ---------- macOS ----------
+mac:
+  category: public.app-category.music
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  icon: resources/icon.png
+  hardenedRuntime: true
+  gatekeeperAssess: false
+
+# ---------- Linux ----------
+linux:
+  target:
+    - AppImage
+    - deb
+  category: AudioVideo
+  icon: resources/icon.png
+  maintainer: YTMusic RPC Contributors
+
+# We do not auto-publish anywhere — everything stays local.
+publish: null

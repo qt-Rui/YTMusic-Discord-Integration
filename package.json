@@ -1,0 +1,51 @@
+{
+  "name": "ytmusic-discord-rpc",
+  "version": "1.0.0",
+  "description": "Display the currently playing YouTube Music track as a Discord Rich Presence. 100% local, no telemetry.",
+  "author": "YTMusic RPC Contributors",
+  "license": "MIT",
+  "main": "./out/main/index.js",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "homepage": "https://github.com/qt-Rui/YouTube-Music-Discord-Integration#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qt-Rui/YouTube-Music-Discord-Integration.git"
+  },
+  "bugs": {
+    "url": "https://github.com/qt-Rui/YouTube-Music-Discord-Integration/issues"
+  },
+  "scripts": {
+    "make:icon": "node scripts/make-icon.mjs",
+    "sim": "node scripts/sim-playback.mjs",
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "lint": "tsc --noEmit -p tsconfig.node.json --composite false && tsc --noEmit -p tsconfig.web.json --composite false",
+    "package": "npm run build && electron-builder",
+    "package:win": "npm run build && electron-builder --win",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:linux": "npm run build && electron-builder --linux"
+  },
+  "dependencies": {
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "@types/react": "^19.2.16",
+    "@types/react-dom": "^19.2.3",
+    "@types/ws": "^8.18.1",
+    "@vitejs/plugin-react": "^5.2.0",
+    "electron": "^42.3.0",
+    "electron-builder": "^26.8.1",
+    "electron-vite": "^5.0.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "typescript": "^6.0.3",
+    "vite": "^7.3.5"
+  }
+}

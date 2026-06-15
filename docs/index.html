@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YTMusic Discord RPC — Show your music on Discord</title>
+    <meta
+      name="description"
+      content="Show what you're listening to on YouTube Music as a Discord Rich Presence. 100% local, no telemetry, no accounts. Free and open source."
+    />
+    <!-- Social preview -->
+    <meta property="og:title" content="YTMusic Discord RPC" />
+    <meta
+      property="og:description"
+      content="Show your YouTube Music now-playing track on Discord. 100% local, open source."
+    />
+    <meta property="og:type" content="website" />
+    <style>
+      :root {
+        --bg: #0f1014;
+        --bg-card: #181a20;
+        --bg-card-2: #1f222b;
+        --border: #2a2e39;
+        --text: #e7e9ee;
+        --muted: #9aa0ad;
+        --discord: #5865f2;
+        --discord-hover: #4752c4;
+        --green: #3ba55d;
+        --red: #ff0033;
+        --radius: 14px;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        background: radial-gradient(1200px 600px at 50% -10%, #1a1d27 0%, var(--bg) 55%);
+        color: var(--text);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      a { color: var(--discord); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+
+      /* Hero */
+      header.hero { text-align: center; padding: 72px 0 32px; }
+      .badge-row {
+        display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+        margin-bottom: 28px;
+      }
+      .pill {
+        font-size: 12.5px; color: var(--muted);
+        background: var(--bg-card); border: 1px solid var(--border);
+        padding: 5px 12px; border-radius: 999px;
+      }
+      .pill strong { color: var(--text); }
+      h1 {
+        font-size: clamp(2.1rem, 6vw, 3.2rem);
+        margin: 0 0 14px; line-height: 1.1; letter-spacing: -0.02em;
+      }
+      .logo-note { font-size: 2.6rem; }
+      .tagline { font-size: 1.2rem; color: var(--muted); max-width: 560px; margin: 0 auto 14px; }
+      .sub { color: var(--muted); font-size: 0.97rem; max-width: 600px; margin: 0 auto; }
+
+      /* Download */
+      .downloads {
+        display: grid; gap: 14px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        margin: 40px 0 12px;
+      }
+      .dl {
+        display: flex; align-items: center; gap: 14px;
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: var(--radius); padding: 18px 20px;
+        transition: border-color 0.15s, transform 0.15s, background 0.15s;
+      }
+      .dl:hover { text-decoration: none; border-color: var(--discord); transform: translateY(-2px); background: var(--bg-card-2); }
+      .dl .ic { font-size: 1.9rem; line-height: 1; }
+      .dl .t { font-weight: 600; color: var(--text); }
+      .dl .s { font-size: 12.5px; color: var(--muted); }
+      .dl.primary { background: var(--discord); border-color: var(--discord); }
+      .dl.primary:hover { background: var(--discord-hover); border-color: var(--discord-hover); }
+      .dl.primary .t, .dl.primary .s { color: #fff; }
+      .dl.primary .s { opacity: 0.85; }
+      .all-releases { text-align: center; font-size: 0.92rem; color: var(--muted); margin-top: 6px; }
+
+      /* Sections */
+      section { padding: 40px 0; border-top: 1px solid var(--border); }
+      section:first-of-type { border-top: none; }
+      h2 { font-size: 1.5rem; margin: 0 0 22px; letter-spacing: -0.01em; }
+
+      .features { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+      .feat { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+      .feat .ic { font-size: 1.5rem; }
+      .feat h3 { margin: 10px 0 6px; font-size: 1.05rem; }
+      .feat p { margin: 0; color: var(--muted); font-size: 0.93rem; }
+
+      /* Steps */
+      ol.steps { counter-reset: step; list-style: none; padding: 0; margin: 0; }
+      ol.steps li {
+        position: relative; padding: 0 0 22px 52px; margin: 0;
+      }
+      ol.steps li::before {
+        counter-increment: step; content: counter(step);
+        position: absolute; left: 0; top: 0;
+        width: 34px; height: 34px; border-radius: 50%;
+        background: var(--discord); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 0.95rem;
+      }
+      ol.steps li:not(:last-child)::after {
+        content: ""; position: absolute; left: 16px; top: 38px; bottom: 6px;
+        width: 2px; background: var(--border);
+      }
+      ol.steps h3 { margin: 4px 0 4px; font-size: 1.05rem; }
+      ol.steps p { margin: 0; color: var(--muted); font-size: 0.93rem; }
+      code {
+        background: var(--bg-card-2); border: 1px solid var(--border);
+        padding: 1px 6px; border-radius: 6px; font-size: 0.85em;
+        font-family: "SF Mono", Consolas, "Liberation Mono", monospace;
+      }
+
+      .note {
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-left: 3px solid var(--discord);
+        border-radius: 10px; padding: 14px 18px; color: var(--muted);
+        font-size: 0.92rem; margin-top: 18px;
+      }
+
+      footer {
+        text-align: center; padding: 40px 20px 56px; color: var(--muted);
+        font-size: 0.88rem; border-top: 1px solid var(--border); margin-top: 20px;
+      }
+      footer a { color: var(--muted); text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="hero">
+        <div class="badge-row">
+          <span class="pill">🔒 <strong>100% local</strong> — no telemetry</span>
+          <span class="pill">🖥️ Windows · macOS · Linux</span>
+          <span class="pill">🆓 Free &amp; open source</span>
+        </div>
+        <h1><span class="logo-note">🎵</span><br />YTMusic Discord RPC</h1>
+        <p class="tagline">
+          Show what you're listening to on <strong>YouTube Music</strong> as a live
+          <strong>Discord Rich Presence</strong> — title, artist, album art, and a
+          synced progress bar.
+        </p>
+        <p class="sub">
+          No accounts. No external servers. Everything runs on your own machine.
+        </p>
+
+        <div class="downloads" id="download">
+          <a class="dl primary" id="dl-win" href="#" rel="noopener">
+            <span class="ic">🪟</span>
+            <span><span class="t">Download for Windows</span><br /><span class="s">.exe installer</span></span>
+          </a>
+          <a class="dl" id="dl-mac" href="#" rel="noopener">
+            <span class="ic">🍎</span>
+            <span><span class="t">Download for macOS</span><br /><span class="s">.dmg (Intel + Apple Silicon)</span></span>
+          </a>
+          <a class="dl" id="dl-linux" href="#" rel="noopener">
+            <span class="ic">🐧</span>
+            <span><span class="t">Download for Linux</span><br /><span class="s">AppImage / .deb</span></span>
+          </a>
+        </div>
+        <p class="all-releases">
+          Looking for a specific version or checksums?
+          <a id="all-releases-link" href="#">Browse all releases →</a>
+        </p>
+      </header>
+
+      <section>
+        <h2>Why you'll like it</h2>
+        <div class="features">
+          <div class="feat">
+            <div class="ic">🔒</div>
+            <h3>Private by design</h3>
+            <p>No telemetry, no accounts, no remote servers. The bridge binds to
+              <code>127.0.0.1</code> only and rejects anything off-machine.</p>
+          </div>
+          <div class="feat">
+            <div class="ic">🎨</div>
+            <h3>Rich, accurate presence</h3>
+            <p>High-quality album art and a progress bar that stays in sync with
+              YouTube Music — including pause and seek.</p>
+          </div>
+          <div class="feat">
+            <div class="ic">♻️</div>
+            <h3>Reliable &amp; light</h3>
+            <p>Auto-reconnects to Discord, throttles updates, and lives quietly in
+              your system tray. Can launch on startup.</p>
+          </div>
+          <div class="feat">
+            <div class="ic">🌐</div>
+            <h3>Works everywhere</h3>
+            <p>YouTube Music in any Chromium browser or Firefox, on Windows, macOS,
+              and Linux.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Get started in 4 steps</h2>
+        <ol class="steps">
+          <li>
+            <h3>Install the desktop app</h3>
+            <p>Download above and run the installer. Make sure the
+              <strong>Discord desktop app</strong> is running (the web version can't
+              be used for Rich Presence).</p>
+          </li>
+          <li>
+            <h3>Load the browser extension</h3>
+            <p>The installer includes an <code>extension</code> folder (in the app,
+              click <strong>Setup</strong> next to the YouTube Music row to reveal it).
+              In Chromium: open <code>chrome://extensions</code>, enable
+              <em>Developer mode</em>, click <em>Load unpacked</em>, and select that
+              folder. Firefox users: see the extension's README.</p>
+          </li>
+          <li>
+            <h3>Add your Discord application ID</h3>
+            <p>Create a free app at
+              <a href="https://discord.com/developers/applications" rel="noopener">discord.com/developers/applications</a>,
+              copy its <strong>Application ID</strong>, and paste it into
+              <strong>Settings → Advanced</strong>. Its name becomes your
+              "Listening to …" label.</p>
+          </li>
+          <li>
+            <h3>Press play 🎉</h3>
+            <p>Open <a href="https://music.youtube.com" rel="noopener">music.youtube.com</a>,
+              start a song, and your Discord profile lights up.</p>
+          </li>
+        </ol>
+        <p class="note">
+          📖 Full walkthrough and troubleshooting live in the
+          <a id="readme-link" href="#">project README</a>.
+        </p>
+      </section>
+
+      <section>
+        <h2>Privacy &amp; security</h2>
+        <div class="features">
+          <div class="feat">
+            <div class="ic">🚫</div>
+            <h3>Nothing leaves your machine</h3>
+            <p>All processing is local. The only connection the extension makes is the
+              loopback WebSocket to the desktop app.</p>
+          </div>
+          <div class="feat">
+            <div class="ic">🔍</div>
+            <h3>Open source &amp; auditable</h3>
+            <p>Every line is on GitHub under the MIT license. Read it, build it
+              yourself, or send a pull request.</p>
+          </div>
+          <div class="feat">
+            <div class="ic">🧩</div>
+            <h3>Minimal extension access</h3>
+            <p>The extension can only touch <code>music.youtube.com</code> and
+              loopback — no broad browsing access.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <p>
+        MIT licensed · <a id="footer-repo" href="#">Source on GitHub</a> ·
+        <a id="footer-issues" href="#">Report an issue</a>
+      </p>
+      <p>Not affiliated with Google, YouTube, or Discord.</p>
+    </footer>
+
+    <script>
+      // ─────────────────────────────────────────────────────────────────────
+      // ⚙️  ONE THING TO EDIT: set this to your GitHub "owner/repo".
+      //     All download and link URLs below are generated from it.
+      // ─────────────────────────────────────────────────────────────────────
+      const REPO = "qt-Rui/YouTube-Music-Discord-Integration";
+
+      const base = `https://github.com/${REPO}`;
+      const latest = `${base}/releases/latest`;
+
+      // Direct downloads point at the "latest release" page filtered by asset
+      // type via GitHub's expanded-assets URL is not stable, so we link to the
+      // latest release page — robust across version bumps and asset renames.
+      document.getElementById("dl-win").href = latest;
+      document.getElementById("dl-mac").href = latest;
+      document.getElementById("dl-linux").href = latest;
+      document.getElementById("all-releases-link").href = `${base}/releases`;
+      document.getElementById("readme-link").href = `${base}#readme`;
+      document.getElementById("footer-repo").href = base;
+      document.getElementById("footer-issues").href = `${base}/issues`;
+
+      // Best-effort OS detection: reorder so the visitor's platform is primary.
+      try {
+        const ua = navigator.userAgent;
+        const win = document.getElementById("dl-win");
+        const mac = document.getElementById("dl-mac");
+        const linux = document.getElementById("dl-linux");
+        const setPrimary = (el) => {
+          [win, mac, linux].forEach((e) => e.classList.remove("primary"));
+          el.classList.add("primary");
+          el.parentNode.prepend(el);
+        };
+        if (/Mac/i.test(ua)) setPrimary(mac);
+        else if (/Linux|X11/i.test(ua) && !/Android/i.test(ua)) setPrimary(linux);
+        // Windows stays primary by default.
+      } catch (_) {
+        /* leave defaults */
+      }
+    </script>
+  </body>
+</html>
