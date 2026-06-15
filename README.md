@@ -4,7 +4,7 @@
 > song title, artist, album, album art, and a synced elapsed/remaining progress bar.
 
 <p align="center">
-  <a href="https://github.com/qt-Rui/YouTube-Music-Discord-Integration/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/qt-Rui/YouTube-Music-Discord-Integration?display_name=tag&color=5865f2"></a>
+  <a href="https://github.com/qt-Rui/YTM-Discord-Integration/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/qt-Rui/YTM-Discord-Integration?display_name=tag&color=5865f2"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-3ba55d"></a>
   <img alt="Platforms" src="https://img.shields.io/badge/platform-win%20%7C%20mac%20%7C%20linux-5865f2">
   <img alt="Privacy: 100% local" src="https://img.shields.io/badge/privacy-100%25%20local-3ba55d">
@@ -20,8 +20,8 @@
 
 ## ⬇️ Download
 
-**[→ Download the latest release](https://github.com/qt-Rui/YouTube-Music-Discord-Integration/releases/latest)**
-&nbsp;·&nbsp; or visit the **[download page](https://qt-Rui.github.io/YouTube-Music-Discord-Integration/)**.
+**[→ Download the latest release](https://github.com/qt-Rui/YTM-Discord-Integration/releases/latest)**
+&nbsp;·&nbsp; or visit the **[download page](https://qt-Rui.github.io/YTM-Discord-Integration/)**.
 
 | Platform | File |
 | --- | --- |
@@ -30,7 +30,7 @@
 | 🐧 **Linux** | `YTMusic-Discord-RPC.AppImage` (also `.deb`) |
 
 > Installers are built automatically for all three platforms by GitHub Actions
-> and attached to each [release](https://github.com/qt-Rui/YouTube-Music-Discord-Integration/releases).
+> and attached to each [release](https://github.com/qt-Rui/YTM-Discord-Integration/releases).
 
 After installing, follow the **[Quick start](#quick-start)** below (you'll also need
 the bundled browser extension and a free Discord Application ID).

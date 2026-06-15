@@ -4,7 +4,7 @@
 
 If you discover a security issue, please **do not open a public issue**. Instead,
 report it privately via GitHub's
-[**Report a vulnerability**](https://github.com/qt-Rui/YouTube-Music-Discord-Integration/security/advisories/new)
+[**Report a vulnerability**](https://github.com/qt-Rui/YTM-Discord-Integration/security/advisories/new)
 button (Security → Advisories), or email the maintainer.
 
 Please include steps to reproduce and the affected version. You'll get an
