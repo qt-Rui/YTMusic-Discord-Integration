@@ -85,6 +85,8 @@
       .dl.primary .t, .dl.primary .s { color: #fff; }
       .dl.primary .s { opacity: 0.85; }
       .all-releases { text-align: center; font-size: 0.92rem; color: var(--muted); margin-top: 6px; }
+      .ext-cta { text-align: center; font-size: 0.98rem; color: var(--text); margin: 14px 0 0; }
+      .ext-cta a { font-weight: 600; }
 
       /* Sections */
       section { padding: 40px 0; border-top: 1px solid var(--border); }
@@ -155,19 +157,23 @@
         </p>
 
         <div class="downloads" id="download">
-          <a class="dl primary" id="dl-win" href="#" rel="noopener">
+          <a class="dl primary" id="dl-win" href="#" download rel="noopener">
             <span class="ic">🪟</span>
             <span><span class="t">Download for Windows</span><br /><span class="s">.exe installer</span></span>
           </a>
-          <a class="dl" id="dl-mac" href="#" rel="noopener">
+          <a class="dl" id="dl-mac" href="#" download rel="noopener">
             <span class="ic">🍎</span>
             <span><span class="t">Download for macOS</span><br /><span class="s">.dmg (Intel + Apple Silicon)</span></span>
           </a>
-          <a class="dl" id="dl-linux" href="#" rel="noopener">
+          <a class="dl" id="dl-linux" href="#" download rel="noopener">
             <span class="ic">🐧</span>
             <span><span class="t">Download for Linux</span><br /><span class="s">AppImage / .deb</span></span>
           </a>
         </div>
+        <p class="ext-cta" id="ext-cta" hidden>
+          🧩 Don't forget the browser extension:
+          <a id="ext-link" href="#" rel="noopener">Add it to your browser →</a>
+        </p>
         <p class="all-releases">
           Looking for a specific version or checksums?
           <a id="all-releases-link" href="#">Browse all releases →</a>
@@ -276,17 +282,22 @@
 
     <script>
       // ─────────────────────────────────────────────────────────────────────
-      // ⚙️  ONE THING TO EDIT: set this to your GitHub "owner/repo".
-      //     All download and link URLs below are generated from it.
+      // ⚙️  THINGS TO EDIT:
+      //   • REPO          — your GitHub "owner/repo" (powers the source/issue links)
+      //   • EXTENSION_URL — your published browser-extension listing. Leave blank
+      //                     until it's live and the "Add to browser" call-to-action
+      //                     stays hidden (so the page never ships a dead link).
       // ─────────────────────────────────────────────────────────────────────
       const REPO = "qt-Rui/YTM-Discord-Integration";
+      const EXTENSION_URL = ""; // e.g. "https://chromewebstore.google.com/detail/<id>"
 
       const base = `https://github.com/${REPO}`;
 
-      // Direct, always-current downloads. The release workflow publishes these
-      // exact, version-less filenames, so "/releases/latest/download/<name>"
-      // resolves to the newest installer without ever editing this page.
-      const asset = (name) => `${base}/releases/latest/download/${name}`;
+      // Installers are served from THIS site (same origin), so clicking downloads
+      // the file directly — no redirect to GitHub's CDN. The "Deploy website"
+      // workflow copies the latest release installers into /downloads/ on every
+      // release, so these always point at the newest build without editing here.
+      const asset = (name) => `downloads/${name}`;
       document.getElementById("dl-win").href = asset("YTMusic-Discord-RPC-Setup.exe");
       document.getElementById("dl-mac").href = asset("YTMusic-Discord-RPC.dmg");
       document.getElementById("dl-linux").href = asset("YTMusic-Discord-RPC.AppImage");
@@ -294,6 +305,13 @@
       document.getElementById("readme-link").href = `${base}#readme`;
       document.getElementById("footer-repo").href = base;
       document.getElementById("footer-issues").href = `${base}/issues`;
+
+      // Browser-extension store link — shown only once a listing URL is set.
+      if (EXTENSION_URL) {
+        const ext = document.getElementById("ext-link");
+        ext.href = EXTENSION_URL;
+        document.getElementById("ext-cta").hidden = false;
+      }
 
       // Best-effort OS detection: reorder so the visitor's platform is primary.
       try {

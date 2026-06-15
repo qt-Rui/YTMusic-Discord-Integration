@@ -1,0 +1,74 @@
+name: Deploy website
+
+# Publishes docs/ to GitHub Pages AND bundles the latest release installers into
+# the site under /downloads/. Because the .exe/.dmg/.AppImage are then served from
+# the Pages origin itself, the download buttons fetch them directly — no redirect
+# to GitHub's release CDN.
+#
+# Runs when the site changes, when a release is published (to pick up fresh
+# installers), or on demand.
+#
+# ⚠️  One-time setup: in the repo, Settings → Pages → "Build and deployment" →
+#     Source → "GitHub Actions". (This replaces the older "deploy from /docs"
+#     source so the workflow below can attach the installers.)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/pages.yml'
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read   # read release assets
+  pages: write     # deploy to Pages
+  id-token: write  # OIDC token for deploy-pages
+
+# Never run two deploys at once; let an in-flight one finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site/downloads
+          cp -r docs/. _site/
+
+      - name: Attach latest release installers
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Pull the version-less installers from the latest published release.
+          # On a brand-new repo with no release yet, this is a no-op and the
+          # download links 404 until the first release triggers a redeploy.
+          for f in \
+            YTMusic-Discord-RPC-Setup.exe \
+            YTMusic-Discord-RPC.dmg \
+            YTMusic-Discord-RPC.AppImage \
+            YTMusic-Discord-RPC.deb; do
+            gh release download --repo "$GITHUB_REPOSITORY" \
+              --pattern "$f" --dir _site/downloads --clobber \
+              && echo "attached $f" \
+              || echo "no release asset $f yet — skipping"
+          done
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
