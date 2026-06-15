@@ -1,0 +1,84 @@
+name: Build & Release installers
+
+# Builds the Windows, macOS, and Linux installers on their native runners and
+# attaches them to a GitHub Release.
+#
+# How to cut a release:
+#   git tag v1.0.0 && git push origin v1.0.0
+# The tag push triggers a build on all three OSes and publishes the release.
+#
+# You can also run it manually (Actions tab → "Run workflow") to test the builds;
+# a manual run uploads the installers as workflow artifacts but does NOT publish
+# a release (no tag).
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            package: npm run package:win
+          - os: macos-latest
+            package: npm run package:mac
+          - os: ubuntu-latest
+            package: npm run package:linux
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate app icon
+        run: npm run make:icon
+
+      - name: Build installer
+        run: ${{ matrix.package }}
+        env:
+          # No code-signing certificate in CI — build unsigned rather than fail.
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.os }}
+          if-no-files-found: ignore
+          path: |
+            release/*.exe
+            release/*.dmg
+            release/*.AppImage
+            release/*.deb
+
+  release:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    # Only publish when triggered by a version tag.
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Download all installers
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Publish to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*
+          generate_release_notes: true
+          fail_on_unmatched_files: false

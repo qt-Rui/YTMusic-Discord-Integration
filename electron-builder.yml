@@ -30,16 +30,23 @@ nsis:
   perMachine: false
   allowToChangeInstallationDirectory: true
   deleteAppDataOnUninstall: false
+  # Stable, version-less filename so the website can link directly to
+  # /releases/latest/download/<name> and never needs updating per release.
+  artifactName: YTMusic-Discord-RPC-Setup.${ext}
 
 # ---------- macOS ----------
 mac:
   category: public.app-category.music
   target:
+    # One universal binary runs on both Intel and Apple Silicon, so the site
+    # only needs a single macOS download button.
     - target: dmg
-      arch: [x64, arm64]
+      arch: [universal]
   icon: resources/icon.png
   hardenedRuntime: true
   gatekeeperAssess: false
+dmg:
+  artifactName: YTMusic-Discord-RPC.${ext}
 
 # ---------- Linux ----------
 linux:
@@ -49,6 +56,8 @@ linux:
   category: AudioVideo
   icon: resources/icon.png
   maintainer: YTMusic RPC Contributors
+  # AppImage + deb share this template; the extension keeps them distinct.
+  artifactName: YTMusic-Discord-RPC.${ext}
 
 # We do not auto-publish anywhere — everything stays local.
 publish: null

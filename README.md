@@ -25,9 +25,12 @@
 
 | Platform | File |
 | --- | --- |
-| 🪟 **Windows** | `YTMusic Discord RPC Setup <version>.exe` (NSIS installer) |
-| 🍎 **macOS** | `.dmg` (Intel + Apple Silicon) |
-| 🐧 **Linux** | `.AppImage` / `.deb` |
+| 🪟 **Windows** | `YTMusic-Discord-RPC-Setup.exe` (NSIS installer) |
+| 🍎 **macOS** | `YTMusic-Discord-RPC.dmg` (universal — Intel + Apple Silicon) |
+| 🐧 **Linux** | `YTMusic-Discord-RPC.AppImage` (also `.deb`) |
+
+> Installers are built automatically for all three platforms by GitHub Actions
+> and attached to each [release](https://github.com/qt-Rui/YouTube-Music-Discord-Integration/releases).
 
 After installing, follow the **[Quick start](#quick-start)** below (you'll also need
 the bundled browser extension and a free Discord Application ID).

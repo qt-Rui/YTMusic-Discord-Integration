@@ -282,14 +282,14 @@
       const REPO = "qt-Rui/YouTube-Music-Discord-Integration";
 
       const base = `https://github.com/${REPO}`;
-      const latest = `${base}/releases/latest`;
 
-      // Direct downloads point at the "latest release" page filtered by asset
-      // type via GitHub's expanded-assets URL is not stable, so we link to the
-      // latest release page — robust across version bumps and asset renames.
-      document.getElementById("dl-win").href = latest;
-      document.getElementById("dl-mac").href = latest;
-      document.getElementById("dl-linux").href = latest;
+      // Direct, always-current downloads. The release workflow publishes these
+      // exact, version-less filenames, so "/releases/latest/download/<name>"
+      // resolves to the newest installer without ever editing this page.
+      const asset = (name) => `${base}/releases/latest/download/${name}`;
+      document.getElementById("dl-win").href = asset("YTMusic-Discord-RPC-Setup.exe");
+      document.getElementById("dl-mac").href = asset("YTMusic-Discord-RPC.dmg");
+      document.getElementById("dl-linux").href = asset("YTMusic-Discord-RPC.AppImage");
       document.getElementById("all-releases-link").href = `${base}/releases`;
       document.getElementById("readme-link").href = `${base}#readme`;
       document.getElementById("footer-repo").href = base;
