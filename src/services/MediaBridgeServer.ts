@@ -48,7 +48,13 @@ export class MediaBridgeServer extends EventEmitter {
     this.stop()
     this.setStatus('connecting', `Starting bridge on 127.0.0.1:${this.port}`)
     try {
-      const wss = new WebSocketServer({ host: '127.0.0.1', port: this.port })
+      const wss = new WebSocketServer({
+        host: '127.0.0.1',
+        port: this.port,
+        // A track snapshot is well under 1 KB; cap frames so a misbehaving or
+        // hostile local client can't push us multi-MB payloads.
+        maxPayload: 64 * 1024
+      })
       this.wss = wss
 
       wss.on('listening', () => {
@@ -61,6 +67,19 @@ export class MediaBridgeServer extends EventEmitter {
         if (!isLoopback(addr)) {
           this.logger.warn('bridge', 'rejected non-loopback peer', addr)
           ws.close(1008, 'loopback only')
+          return
+        }
+        // Defense against cross-site WebSocket hijacking. Loopback alone isn't
+        // enough: any web page the user has open can also reach 127.0.0.1 from
+        // this same address. The browser extension connects from an extension
+        // origin (chrome-extension:// / moz-extension://), whereas a web page
+        // always presents its http(s):// page origin — so reject those to stop a
+        // malicious site from spoofing the user's now-playing presence. Clients
+        // with no Origin header (local test/sim scripts) are still allowed.
+        const origin = req.headers.origin
+        if (origin && /^https?:\/\//i.test(origin)) {
+          this.logger.warn('bridge', 'rejected web origin', origin)
+          ws.close(1008, 'forbidden origin')
           return
         }
         this.onConnection(ws)
